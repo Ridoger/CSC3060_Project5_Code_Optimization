@@ -7,23 +7,44 @@
 
 #include "bench.h"
 #include "relu.h"
+#include "bitwise.h"
 
 
 int main() {
     std::uint32_t seed = 12345u;
     constexpr size_t relu_size = 1024000;
+    constexpr size_t bitwise_size = 1024000;
+
     relu_args relu_args_naive;
+    relu_args relu_args_stu;
     initialize_relu(&relu_args_naive, relu_size, seed);
+    relu_args_stu = relu_args_naive; // Copy input data for student implementation
     std::println("\tReLU: vector length={}", relu_size);
 
+    bitwise_args bitwise_args_naive;
+    bitwise_args bitwise_args_stu;
+    initialize_bitwise(&bitwise_args_naive, bitwise_size, seed);
+    bitwise_args_stu = bitwise_args_naive; // Copy input data for student implementation
+    std::println("\tBitwise: vector length={}", bitwise_size);
+
     std::vector<bench_t> benchmarks = {
-                {"ReLU (Naive)",
-                 naive_relu_wrapper,
-                 naive_relu_wrapper,
-                 relu_check,
-                 &relu_args_naive,
-                 &relu_args_naive,
-                 BASELINE_RELU},
+
+        {"ReLU",
+         stu_relu_wrapper,
+         naive_relu_wrapper,
+         relu_check,
+         &relu_args_stu,
+         &relu_args_naive,
+         BASELINE_RELU},
+
+        {"Bitwise",
+         stu_bitwise_wrapper,
+         naive_bitwise_wrapper,
+         bitwise_check,
+         &bitwise_args_stu,
+         &bitwise_args_naive,
+         BASELINE_BITWISE}       
+
     };
     std::cout << "\nRunning Benchmarks...\n";
     std::cout << "--------------------------------------------------------\n";

@@ -54,10 +54,29 @@ void naive_bitwise(std::span<std::int8_t> result,
     }
 }
 
-// TODO: Optimize the bitwise function
+// SWAR: process 4 int8_t at a time using uint32_t
 void stu_bitwise(std::span<std::int8_t> result, std::span<const std::int8_t> a,
                  std::span<const std::int8_t> b) {
-    // Implement your version...
+    constexpr std::uint32_t kMaskLo32 = 0x5A5A5A5Au;
+    constexpr std::uint32_t kMaskHi32 = 0xC3C3C3C3u;
+
+    const std::size_t n = std::min({result.size(), a.size(), b.size()});
+
+    // Always read 4 bytes, clamp final write
+    for (std::size_t i = 0; i < n; i += 4) {
+        std::uint32_t a32, b32;
+        std::memcpy(&a32, reinterpret_cast<const std::uint8_t*>(&a[i]), 4);
+        std::memcpy(&b32, reinterpret_cast<const std::uint8_t*>(&b[i]), 4);
+
+        const auto shared = a32 & b32;
+        const auto either = a32 | b32;
+        const auto diff = a32 ^ b32;
+        const auto mixed0 = (diff & kMaskLo32) | (~shared & ~kMaskLo32);
+        const auto mixed1 = ((either ^ kMaskHi32) & (shared | ~kMaskHi32)) ^ diff;
+
+        const auto result32 = mixed0 ^ mixed1;
+        std::memcpy(&result[i], &result32, (std::min)(std::size_t{4}, n - i));
+    }
 }
 
 void naive_bitwise_wrapper(void *ctx) {
