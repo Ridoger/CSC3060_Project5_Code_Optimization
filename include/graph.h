@@ -8,6 +8,7 @@
 #include <vector>
 
 const std::chrono::nanoseconds BASELINE_GRAPH{5000000};
+inline constexpr double NAIVE_SPEEDUP_LOWER_BOUND_GRAPH{2.50};
 
 struct Edge {
     int to;
