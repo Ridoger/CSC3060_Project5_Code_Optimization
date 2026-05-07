@@ -57,26 +57,37 @@ void naive_bitwise(std::span<std::int8_t> result,
 // SWAR: process 4 int8_t at a time using uint32_t
 void stu_bitwise(std::span<std::int8_t> result, std::span<const std::int8_t> a,
                  std::span<const std::int8_t> b) {
-    constexpr std::uint32_t kMaskLo32 = 0x5A5A5A5Au;
-    constexpr std::uint32_t kMaskHi32 = 0xC3C3C3C3u;
+    constexpr uint64_t kMaskLo = 0x5A5A5A5A5A5A5A5Au;
+    constexpr uint64_t kMaskHi = 0xC3C3C3C3C3C3C3C3u;
 
-    const std::size_t n = std::min({result.size(), a.size(), b.size()});
+    const size_t n = std::min({result.size(), a.size(), b.size()});
+    auto ptr_a = reinterpret_cast<const uint8_t*>(&a[0]);
+    auto ptr_b = reinterpret_cast<const uint8_t*>(&b[0]);
 
-    // Always read 4 bytes, clamp final write
-    for (std::size_t i = 0; i < n; i += 4) {
-        std::uint32_t a32, b32;
-        std::memcpy(&a32, reinterpret_cast<const std::uint8_t*>(&a[i]), 4);
-        std::memcpy(&b32, reinterpret_cast<const std::uint8_t*>(&b[i]), 4);
+    // Read 8 bytes, clamp final write
+    size_t i = 0;
+    uint64_t result64;
+    while (i < n) {
+        uint64_t a64, b64;
+        std::memcpy(&a64, ptr_a, 8);
+        std::memcpy(&b64, ptr_b, 8);
 
-        const auto shared = a32 & b32;
-        const auto either = a32 | b32;
-        const auto diff = a32 ^ b32;
-        const auto mixed0 = (diff & kMaskLo32) | (~shared & ~kMaskLo32);
-        const auto mixed1 = ((either ^ kMaskHi32) & (shared | ~kMaskHi32)) ^ diff;
+        const auto either = a64 | b64;
+        result64 = ~((either & kMaskHi) | (~either & kMaskLo));
 
-        const auto result32 = mixed0 ^ mixed1;
-        std::memcpy(&result[i], &result32, (std::min)(std::size_t{4}, n - i));
+        if (i + 8 > n) {
+            break;
+        }
+
+        std::memcpy(&result[i], &result64, 8);
+
+        ptr_a += 8;
+        ptr_b += 8;
+        i += 8;
     }
+
+    std::memcpy(&result[i], &result64, n - i);
+
 }
 
 void naive_bitwise_wrapper(void *ctx) {
