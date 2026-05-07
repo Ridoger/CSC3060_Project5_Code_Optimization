@@ -67,19 +67,25 @@ In other words, students normally edit `src/kernel/<name>.cpp`, and sometimes ad
 The benchmark headers now carry two kinds of reference data:
 
 - `BASELINE_*`: a reference runtime used when we report speedup over the baseline.
-- `NAIVE_SPEEDUP_LOWER_BOUND_*`: a reference lower bound for the ratio `naive / stu_*`. Below, we abbreviate the corresponding lower-bound value for the current kernel as \(LB\).
+- `NAIVE_SPEEDUP_LOWER_BOUND_*`: a reference lower bound for the ratio `naive / stu_*`.
+
+In the formulas below:
+
+- $t_{\mathrm{naive}}$ means the runtime of the naive implementation.
+- $t_{\mathrm{stu}}$ means the runtime of the corresponding `stu_*` implementation.
+- $LB$ means the lower-bound value for the current kernel.
 
 Because the server workload can be unstable, the main per-kernel speedup that students should pay attention to is now the speedup over the naive version:
 
-$$
-\text{speedup over naive} = \frac{\text{naive}}{\texttt{stu\_*}}
-$$
+```math
+\text{speedup over naive} = \frac{t_{\mathrm{naive}}}{t_{\mathrm{stu}}}
+```
 
 The lower-bound values are stored in the corresponding header files, and they mean that ideally:
 
-$$
-\frac{\text{naive}}{\texttt{stu\_*}} > LB
-$$
+```math
+\frac{t_{\mathrm{naive}}}{t_{\mathrm{stu}}} > LB
+```
 
 Important note:
 
@@ -122,13 +128,13 @@ It provides:
 
 The most important speedup numbers now are:
 
-$$
-\text{speedup over naive} = \frac{\text{naive}}{\texttt{stu\_*}}
-$$
+```math
+\text{speedup over naive} = \frac{t_{\mathrm{naive}}}{t_{\mathrm{stu}}}
+```
 
-$$
-\text{speedup over baseline} = \frac{\text{baseline}}{\texttt{stu\_*}}
-$$
+```math
+\text{speedup over baseline} = \frac{t_{\mathrm{baseline}}}{t_{\mathrm{stu}}}
+```
 
 Important detail:
 
@@ -273,17 +279,17 @@ Why this matters:
 
 For the bonus part, the individual multiplier for one kernel is:
 
-$$
-\frac{\text{naive}}{\texttt{stu\_bonus} \cdot LB}
-$$
+```math
+\frac{t_{\mathrm{naive}}}{t_{\mathrm{stu,bonus}} \cdot LB}
+```
 
 That is equivalent to:
 
-$$
-\frac{\text{naive} / \texttt{stu\_bonus}}{LB}
-$$
+```math
+\frac{t_{\mathrm{naive}} / t_{\mathrm{stu,bonus}}}{LB}
+```
 
-So the geometric mean no longer treats all raw student speedups directly. Instead, it normalizes them by the lower-bound target \(LB\) for each kernel. This matches the grading idea described in the project PDF for the bonus part.
+So the geometric mean no longer treats all raw student speedups directly. Instead, it normalizes them by the lower-bound target $LB$ for each kernel. This matches the grading idea described in the project PDF for the bonus part.
 
 ## Profiling With `perf`
 
