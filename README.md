@@ -101,7 +101,7 @@ The table below is sorted by header file name in ascending order. The actual con
 | `blackscholes.h` | `BASELINE_BLACKSCHOLES` | `4,800,000` | `1.35` | `81,920` options |
 | `filter_gradient.h` | `BASELINE_FILTER_GRADIENT` | `25,000,000` | `1.45` | height x width `1024 x 1024` |
 | `graph.h` | `BASELINE_GRAPH` | `5,000,000` | `2.50` | `1,024,000` nodes, average degree `8` |
-| `grff.h` | `BASELINE_GRFF` | `8,500,000` | `1.83` | feature size `1,024,000` |
+| `grff.h` | `BASELINE_GRFF` | `8,500,000` | `3.15` | feature size `1,024,000` |
 | `image_proc.h` | `BASELINE_IMAGE_PROC` | `43,000,000` | `1.79` | image size `1024 x 1000` |
 | `matmul.h` | `BASELINE_MATMUL` | `88,000,000` | `2.45` | matrix size `512 x 512` |
 | `relu.h` | `BASELINE_RELU` | `550,000` | `2.50` | vector length `1,024,000` |
