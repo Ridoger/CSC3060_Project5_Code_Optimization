@@ -69,6 +69,9 @@ The benchmark headers now carry two kinds of reference data:
 - `BASELINE_*`: a reference runtime used when we report speedup over the baseline.
 - `NAIVE_SPEEDUP_LOWER_BOUND_*`: a reference lower bound for the ratio `naive / stu_*`.
 
+For the overall summary printed by `run_all.cpp`, we now use these fixed
+`BASELINE_*` values from the header files to compute the geometric mean.
+
 In the formulas below:
 
 - $t_{\mathrm{naive}}$ means the runtime of the naive implementation.
@@ -135,6 +138,9 @@ The most important speedup numbers now are:
 ```math
 \text{speedup over baseline} = \frac{t_{\mathrm{baseline}}}{t_{\mathrm{stu}}}
 ```
+
+The final geometric mean reported by `run_all.cpp` is also based on these
+fixed baseline speedups, not on `naive / stu_*`.
 
 Important detail:
 
@@ -265,7 +271,7 @@ This is useful for:
 
 This macro controls whether the program prints one overall performance summary at the end.
 
-- When `GEOMETRIC_MEAN` is `1`, `run_all` collects the runtime of every benchmark and prints the geometric mean speedup after all benchmarks finish.
+- When `GEOMETRIC_MEAN` is `1`, `run_all` collects the speedup over the fixed baseline for every benchmark and prints the geometric mean after all benchmarks finish.
 - When `GEOMETRIC_MEAN` is `0`, that overall summary is disabled.
 - If any benchmark fails correctness checking, the geometric mean is reported as `N/A`.
 
@@ -277,19 +283,28 @@ Why this matters:
 
 ### How the geometric mean is computed now
 
-For the bonus part, the individual multiplier for one kernel is:
+For one kernel, the individual multiplier used by the geometric mean is:
 
 ```math
-\frac{t_{\mathrm{naive}}}{t_{\mathrm{stu,bonus}} \cdot LB}
+\frac{t_{\mathrm{baseline}}}{t_{\mathrm{stu}}}
 ```
 
-That is equivalent to:
+If we write the baseline speedup of kernel $i$ as $s_i$, then:
 
 ```math
-\frac{t_{\mathrm{naive}} / t_{\mathrm{stu,bonus}}}{LB}
+s_i = \frac{t_{\mathrm{baseline},i}}{t_{\mathrm{stu},i}}
 ```
 
-So the geometric mean no longer treats all raw student speedups directly. Instead, it normalizes them by the lower-bound target $LB$ for each kernel. This matches the grading idea described in the project PDF for the bonus part.
+and the final geometric mean over $n$ kernels is:
+
+```math
+\left(\prod_{i=1}^{n} s_i\right)^{1/n}
+```
+
+So the overall summary now uses the fixed `BASELINE_*` values defined in the
+header files. The lower-bound target $LB$ is still useful when comparing
+`naive / stu_*` for one kernel, but it is not part of the geometric-mean
+calculation.
 
 ## Profiling With `perf`
 

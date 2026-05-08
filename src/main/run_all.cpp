@@ -35,12 +35,8 @@ int main() {
     std::uint32_t seed = 12345u;
 
 #if GEOMETRIC_MEAN
-    std::vector<std::chrono::nanoseconds> gm_naive_times;
-    std::vector<std::chrono::nanoseconds> gm_stu_times;
-    std::vector<bench_t> gm_benchmarks;
-    gm_naive_times.reserve(10);
-    gm_stu_times.reserve(10);
-    gm_benchmarks.reserve(10);
+    std::vector<double> baseline_speedups;
+    baseline_speedups.reserve(10);
     bool gm_enable = true;
 #endif
 
@@ -107,9 +103,7 @@ int main() {
         std::cout << std::setprecision(6);
 
 #if GEOMETRIC_MEAN
-        gm_naive_times.push_back(naive_time);
-        gm_stu_times.push_back(stu_time);
-        gm_benchmarks.push_back(bench);
+        baseline_speedups.push_back(baseline_speedup);
 #endif
     };
 
@@ -419,9 +413,9 @@ int main() {
     }
 
 #if GEOMETRIC_MEAN
-    if (gm_enable && !gm_benchmarks.empty()) {
-        const double geometric_mean_speedup = calculate_geometric_mean_speedup(
-            gm_naive_times, gm_stu_times, gm_benchmarks);
+    if (gm_enable && !baseline_speedups.empty()) {
+        const double geometric_mean_speedup =
+            calculate_geometric_mean_speedup(baseline_speedups);
         std::println("\nGeometric mean speedup: {:.3f}x",
                      geometric_mean_speedup);
     } else {
