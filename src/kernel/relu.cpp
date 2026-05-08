@@ -32,7 +32,8 @@ void naive_relu(std::span<float> data) {
 
 void stu_relu(std::span<float> data) {
     for (auto &&value : data) {
-        value = (std::fabs(value) + value) / 2;
+        // value = (std::fabs(value) + value) / 2;
+        value *= value > 0.0f;
     }
 }
 

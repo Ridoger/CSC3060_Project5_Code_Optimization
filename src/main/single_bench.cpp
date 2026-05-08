@@ -29,13 +29,21 @@ int main() {
 
     std::vector<bench_t> benchmarks = {
 
+        {"ReLU",
+         stu_relu_wrapper,
+         naive_relu_wrapper,
+         relu_check,
+         &relu_args_stu,
+         &relu_args_naive,
+         BASELINE_RELU},
+
         {"Bitwise",
          stu_bitwise_wrapper,
          naive_bitwise_wrapper,
          bitwise_check,
          &bitwise_args_stu,
          &bitwise_args_naive,
-         BASELINE_BITWISE}       
+         BASELINE_BITWISE}
 
     };
     std::cout << "\nRunning Benchmarks...\n";
