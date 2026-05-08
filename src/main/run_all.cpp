@@ -40,10 +40,14 @@ int main() {
     initialize_relu(&relu_args_naive, relu_size, seed);
     std::println("\tReLU: vector length={}", relu_size);
 
+    auto relu_args_stu = relu_args_naive; 
+
     constexpr size_t bitwise_size = 1024000;
     bitwise_args bitwise_args_naive;
     initialize_bitwise(&bitwise_args_naive, bitwise_size, seed);
     std::println("\tBitwise: vector length={}", bitwise_size);
+
+    auto bitwise_args_stu = bitwise_args_naive; 
 
     matmul_args matmul_args_naive;
     initialize_matmul(matmul_args_naive, 512, seed);
@@ -98,18 +102,18 @@ int main() {
          &sparse_args,
          &sparse_args,
          BASELINE_SPARSE_SPMM},
-        {"ReLU (Naive)",
-         naive_relu_wrapper,
+        {"ReLU",
+         stu_relu_wrapper,
          naive_relu_wrapper,
          relu_check,
-         &relu_args_naive,
+         &relu_args_stu,
          &relu_args_naive,
          BASELINE_RELU},
-        {"Bitwise (Naive)",
-         naive_bitwise_wrapper,
+        {"Bitwise",
+         stu_bitwise_wrapper,
          naive_bitwise_wrapper,
          bitwise_check,
-         &bitwise_args_naive,
+         &bitwise_args_stu,
          &bitwise_args_naive,
          BASELINE_BITWISE},
         {"MatMul (Naive)",

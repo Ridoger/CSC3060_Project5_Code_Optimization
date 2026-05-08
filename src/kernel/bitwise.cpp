@@ -54,39 +54,46 @@ void naive_bitwise(std::span<std::int8_t> result,
     }
 }
 
-// SWAR: process 4 int8_t at a time using uint32_t
-void stu_bitwise(std::span<std::int8_t> result, std::span<const std::int8_t> a,
+void stu_bitwise(std::span<std::int8_t> result, 
+                 std::span<const std::int8_t> a,
                  std::span<const std::int8_t> b) {
+    
+    // 64-bit masks
     constexpr uint64_t kMaskLo = 0x5A5A5A5A5A5A5A5Au;
     constexpr uint64_t kMaskHi = 0xC3C3C3C3C3C3C3C3u;
 
+    // maintain pointers by incrementing 
+    // instead of [i] to avoid multilication per access 
+    auto ptr_a = reinterpret_cast<const uint64_t*>(&a[0]);
+    auto ptr_b = reinterpret_cast<const uint64_t*>(&b[0]);
+    auto ptr_r = reinterpret_cast<uint64_t*>(&result[0]);
+
     const size_t n = std::min({result.size(), a.size(), b.size()});
-    auto ptr_a = reinterpret_cast<const uint8_t*>(&a[0]);
-    auto ptr_b = reinterpret_cast<const uint8_t*>(&b[0]);
+    auto ptr_end = ptr_a + (n >> 3);    // the end pointer for SWAR
+    auto i = n & 7;                     // the size of tail
+    
+    // SWAR processing
+    while (ptr_a != ptr_end) {
 
-    // Read 8 bytes, clamp final write
-    size_t i = 0;
-    uint64_t result64;
-    while (i < n) {
-        uint64_t a64, b64;
-        std::memcpy(&a64, ptr_a, 8);
-        std::memcpy(&b64, ptr_b, 8);
+        __builtin_prefetch(ptr_a + 64);
+        __builtin_prefetch(ptr_b + 64);
+        __builtin_prefetch(ptr_r + 64, 1);
 
-        const auto either = a64 | b64;
-        result64 = ~((either & kMaskHi) | (~either & kMaskLo));
+        // read 8 bytes
+        // simplified computation
+        auto either = *ptr_a | *ptr_b;
+        *ptr_r  = ~((either & kMaskHi) | (~either & kMaskLo));
 
-        if (i + 8 > n) {
-            break;
-        }
-
-        std::memcpy(&result[i], &result64, 8);
-
-        ptr_a += 8;
-        ptr_b += 8;
-        i += 8;
+        // move to next chunk of 8 bytes
+        ptr_a++;
+        ptr_b++;
+        ptr_r++;
     }
 
-    std::memcpy(&result[i], &result64, n - i);
+    // tail processing
+    auto either = *ptr_a | *ptr_b;
+    auto result64 = ~((either & kMaskHi) | (~either & kMaskLo));
+    std::memcpy(ptr_r, &result64, i);
 
 }
 
