@@ -51,10 +51,12 @@ int main() {
 
     matmul_args matmul_args_naive;
     initialize_matmul(matmul_args_naive, 512, seed);
+    auto matmul_args_stu = matmul_args_naive;
     std::cout << "\tMatMul: n=" << matmul_args_naive.n << '\n';
 
     trace_replay_args trace_args_naive;
     initialize_trace_replay(trace_args_naive, 1 << 16, 1 << 20, seed);
+    auto trace_args_stu = trace_args_naive;
     std::cout << "\tTrace Replay: records=" << trace_args_naive.records.size()
               << ", trace_length=" << trace_args_naive.trace.size() << '\n';
 
@@ -116,18 +118,18 @@ int main() {
          &bitwise_args_stu,
          &bitwise_args_naive,
          BASELINE_BITWISE},
-        {"MatMul (Naive)",
-         naive_matmul_wrapper,
+        {"MatMul",
+         stu_matmul_wrapper,
          naive_matmul_wrapper,
          matmul_check,
-         &matmul_args_naive,
+         &matmul_args_stu,
          &matmul_args_naive,
          BASELINE_MATMUL},
-        {"Trace Replay (Naive)",
-         naive_trace_replay_wrapper,
+        {"Trace Replay",
+         stu_trace_replay_wrapper,
          naive_trace_replay_wrapper,
          trace_replay_check,
-         &trace_args_naive,
+         &trace_args_stu,
          &trace_args_naive,
          BASELINE_TRACE_REPLAY},
         {"Graph (Naive)",

@@ -6,44 +6,26 @@
 #include <vector>
 
 #include "bench.h"
-#include "relu.h"
-#include "bitwise.h"
+#include "matmul.h"
 
 
 int main() {
     std::uint32_t seed = 12345u;
-    constexpr size_t relu_size = 1024000;
-    constexpr size_t bitwise_size = 1024000;
 
-    relu_args relu_args_naive;
-    relu_args relu_args_stu;
-    initialize_relu(&relu_args_naive, relu_size, seed);
-    relu_args_stu = relu_args_naive; // Copy input data for student implementation
-    std::println("\tReLU: vector length={}", relu_size);
-
-    bitwise_args bitwise_args_naive;
-    bitwise_args bitwise_args_stu;
-    initialize_bitwise(&bitwise_args_naive, bitwise_size, seed);
-    bitwise_args_stu = bitwise_args_naive; // Copy input data for student implementation
-    std::println("\tBitwise: vector length={}", bitwise_size);
+    matmul_args matmul_args_naive;
+    initialize_matmul(matmul_args_naive, 512, seed);
+    auto matmul_args_stu = matmul_args_naive;
+    std::println("\tMatMul: n={}", matmul_args_naive.n);
 
     std::vector<bench_t> benchmarks = {
 
-        {"ReLU",
-         stu_relu_wrapper,
-         naive_relu_wrapper,
-         relu_check,
-         &relu_args_stu,
-         &relu_args_naive,
-         BASELINE_RELU},
-
-        {"Bitwise",
-         stu_bitwise_wrapper,
-         naive_bitwise_wrapper,
-         bitwise_check,
-         &bitwise_args_stu,
-         &bitwise_args_naive,
-         BASELINE_BITWISE}
+        {"MatMul",
+         stu_matmul_wrapper,
+         naive_matmul_wrapper,
+         matmul_check,
+         &matmul_args_stu,
+         &matmul_args_naive,
+         BASELINE_MATMUL}
 
     };
     std::cout << "\nRunning Benchmarks...\n";
