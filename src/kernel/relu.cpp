@@ -31,7 +31,25 @@ void naive_relu(std::span<float> data) {
 }
 
 void stu_relu(std::span<float> data) {
-    // TODO: Implement your version, and call it in stu_relu_wrapper
+    // branchless ReLU, x8 unrolled to reduce loop control overhead
+    auto ptr = data.data();
+    const auto ptr_end = ptr + data.size();
+    const auto ptr8 = ptr + (data.size() & ~7);
+    while (ptr < ptr8) {
+        ptr[0] *= ptr[0] > 0.0f;
+        ptr[1] *= ptr[1] > 0.0f;
+        ptr[2] *= ptr[2] > 0.0f;
+        ptr[3] *= ptr[3] > 0.0f;
+        ptr[4] *= ptr[4] > 0.0f;
+        ptr[5] *= ptr[5] > 0.0f;
+        ptr[6] *= ptr[6] > 0.0f;
+        ptr[7] *= ptr[7] > 0.0f;
+        ptr += 8;
+    }
+    while (ptr < ptr_end) {
+        *ptr *= *ptr > 0.0f;
+        ptr++;
+    }
 }
 
 void naive_relu_wrapper(void *ctx) {

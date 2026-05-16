@@ -48,7 +48,35 @@ void stu_matmul(std::vector<float>& C,
                 const std::vector<float>& A,
                 const std::vector<float>& B,
                 int n) {
-    // TODO: Implement your version, and call it in stu_matmul_wrapper
+        
+    std::fill(C.begin(), C.end(), 0.0f); // reset C
+
+    constexpr int BLOCK = 64;
+
+    // note that
+    // ((A11 A12)  ((B11 B12)       ((A11 B11 + A12 B21)  (A11 B12 + A12 B22)
+    //  (A21 A22))  (B21 B22))  =    (A21 B11 + A22 B21)  (A21 B12 + A22 B22))
+    // and it can be generalized to arbitrary number of the sub blocks,
+    // which can used to tear down the scale of multiplication,
+    for (int ii = 0; ii < n; ii += BLOCK) {
+        const int i_end = std::min(ii + BLOCK, n);
+    for (int jj = 0; jj < n; jj += BLOCK) {
+        const int j_end = std::min(jj + BLOCK, n);
+    for (int kk = 0; kk < n; kk += BLOCK) {
+        const int k_end = std::min(kk + BLOCK, n);
+    // tiled on ii→jj→kk so C tile stays resident in L1 across kk accumulation
+                
+        // cij = Σ aik * bkj
+        // rearranged the order to iterate j first, then k,
+        // to eliminate cache conflict on B
+        for (int i = ii; i < i_end; ++i) {
+        for (int k = kk; k < k_end; ++k) {
+            const float aik = A[i * n + k];
+        for (int j = jj; j < j_end; ++j) {
+            C[i * n + j] += aik * B[k * n + j];
+        } } }
+                
+    } } }
 }
 
 void naive_matmul_wrapper(void* ctx) {

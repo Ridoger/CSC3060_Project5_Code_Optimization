@@ -54,10 +54,60 @@ void naive_bitwise(std::span<std::int8_t> result,
     }
 }
 
-// TODO: Optimize the bitwise function
-void stu_bitwise(std::span<std::int8_t> result, std::span<const std::int8_t> a,
+void stu_bitwise(std::span<std::int8_t> result, 
+                 std::span<const std::int8_t> a,
                  std::span<const std::int8_t> b) {
-    // Implement your version...
+    
+    // algebraic simplified
+    constexpr uint64_t kMaskAnd = 0x9999999999999999u;
+    constexpr uint64_t kMaskXor = 0xA5A5A5A5A5A5A5A5u;
+
+    // use increment instead of [i] to avoid multiplication
+    auto ptr_a = reinterpret_cast<const uint64_t*>(&a[0]);
+    auto ptr_b = reinterpret_cast<const uint64_t*>(&b[0]);
+    auto ptr_r = reinterpret_cast<uint64_t*>(&result[0]);
+
+    const size_t n = std::min({result.size(), a.size(), b.size()});
+    const auto ptr_end = ptr_a + (n >> 3);  // end ptr
+    const size_t tail = n & 7;              // size of tail
+
+    // SWAR 64-bit x4 unrolled
+    while (ptr_a + 4 <= ptr_end) {
+
+        // prefetch 48 ahead
+        __builtin_prefetch(ptr_a + 48, 0, 3);
+        __builtin_prefetch(ptr_b + 48, 0, 3);
+        __builtin_prefetch(ptr_r + 48, 1, 3);
+
+        uint64_t e0 = ptr_a[0] | ptr_b[0];
+        uint64_t e1 = ptr_a[1] | ptr_b[1];
+        uint64_t e2 = ptr_a[2] | ptr_b[2];
+        uint64_t e3 = ptr_a[3] | ptr_b[3];
+
+        ptr_r[0] = ((e0 & kMaskAnd) ^ kMaskXor);
+        ptr_r[1] = ((e1 & kMaskAnd) ^ kMaskXor);
+        ptr_r[2] = ((e2 & kMaskAnd) ^ kMaskXor);
+        ptr_r[3] = ((e3 & kMaskAnd) ^ kMaskXor);
+
+        ptr_a += 4;
+        ptr_b += 4;
+        ptr_r += 4;
+    }
+
+    // remaining 8-byte chunks
+    while (ptr_a != ptr_end) {
+        uint64_t e = *ptr_a | *ptr_b;
+        *ptr_r = ((e & kMaskAnd) ^ kMaskXor);
+        ptr_a++;
+        ptr_b++;
+        ptr_r++;
+    }
+
+    // tail
+    uint64_t e = *ptr_a | *ptr_b;
+    uint64_t chunk = ((e & kMaskAnd) ^ kMaskXor);
+    std::memcpy(ptr_r, &chunk, tail);
+
 }
 
 void naive_bitwise_wrapper(void *ctx) {
