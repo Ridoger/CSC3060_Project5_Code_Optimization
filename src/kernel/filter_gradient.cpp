@@ -49,6 +49,22 @@ void initialize_filter_gradient(filter_gradient_args* args,
     }
 }
 
+void convert_data_struct(const data_struct& data, std::vector<aos_struct>& aos_vec) {
+    const size_t n = data.a.size();
+    aos_vec.resize(n);
+    for (size_t i = 0; i < n; ++i) {
+        aos_vec[i].a = data.a[i];
+        aos_vec[i].b = data.b[i];
+        aos_vec[i].c = data.c[i];
+        aos_vec[i].d = data.d[i];
+        aos_vec[i].e = data.e[i];
+        aos_vec[i].f = data.f[i];
+        aos_vec[i].g = data.g[i];
+        aos_vec[i].h = data.h[i];
+        aos_vec[i].i = data.i[i];
+    }
+}
+
 void naive_filter_gradient(float& out, const data_struct& data,
                    std::size_t width, std::size_t height) {
     const std::size_t W = width;
@@ -121,11 +137,78 @@ void naive_filter_gradient(float& out, const data_struct& data,
     out = total;
 }
 
-void stu_filter_gradient(float& out, const data_struct& data,
+void stu_filter_gradient(float& out, const std::vector<aos_struct>& data,
                    std::size_t width, std::size_t height) {
-    // TODO: You may need to add a function to convert data structure (not 
-    // included in time measurement), then implement your version in 
-    // stu_filter_gradient, whch is called by stu_filter_gradient_wrapper.
+
+    const std::size_t W = width;
+    const std::size_t H = height;
+    constexpr float inv9 = 1.0f / 9.0f;
+
+    double total = 0.0f;
+
+    for (std::size_t y = 1; y + 1 < H; ++y) {
+        for (std::size_t x = 1; x + 1 < W; ++x) {
+
+            double sum_a = 0.0, sum_b = 0.0, sum_c = 0.0;
+            for (int dy = -1; dy <= 1; ++dy) {
+                const std::size_t row = (y + dy) * W;
+                for (int dx = -1; dx <= 1; ++dx) {
+                    const std::size_t idx = row + (x + dx);
+                    sum_a += data[idx].a;
+                    sum_b += data[idx].b;
+                    sum_c += data[idx].c;
+                }
+            }
+            const float avg_a = sum_a * inv9;
+            const float avg_b = sum_b * inv9;
+            const float avg_c = sum_c * inv9;
+            const float p1 = avg_a * avg_b + avg_c;
+
+            const std::size_t ym1 = (y - 1) * W;
+            const std::size_t y0  = y * W;
+            const std::size_t yp1 = (y + 1) * W;
+
+            const std::size_t xm1 = x - 1;
+            const std::size_t x0  = x;
+            const std::size_t xp1 = x + 1;
+
+            const float sobel_dx =
+                -data[ym1 + xm1].d + data[ym1 + xp1].d
+                -2.0f * data[y0 + xm1].d + 2.0f * data[y0 + xp1].d
+                -data[yp1 + xm1].d + data[yp1 + xp1].d;
+
+            const float sobel_ex =
+                -data[ym1 + xm1].e + data[ym1 + xp1].e
+                -2.0f * data[y0 + xm1].e + 2.0f * data[y0 + xp1].e
+                -data[yp1 + xm1].e + data[yp1 + xp1].e;
+
+            const float sobel_fx =
+                -data[ym1 + xm1].f + data[ym1 + xp1].f
+                -2.0f * data[y0 + xm1].f + 2.0f * data[y0 + xp1].f
+                -data[yp1 + xm1].f + data[yp1 + xp1].f;
+
+            const float p2 = sobel_dx * sobel_ex + sobel_fx;
+
+            const float sobel_gy =
+                -data[ym1 + xm1].g - 2.0f * data[ym1 + x0].g - data[ym1 + xp1].g
+                + data[yp1 + xm1].g + 2.0f * data[yp1 + x0].g + data[yp1 + xp1].g;
+
+            const float sobel_hy =
+                -data[ym1 + xm1].h - 2.0f * data[ym1 + x0].h - data[ym1 + xp1].h
+                + data[yp1 + xm1].h + 2.0f * data[yp1 + x0].h + data[yp1 + xp1].h;
+
+            const float sobel_iy =
+                -data[ym1 + xm1].i - 2.0f * data[ym1 + x0].i - data[ym1 + xp1].i
+                + data[yp1 + xm1].i + 2.0f * data[yp1 + x0].i + data[yp1 + xp1].i;
+
+            const float p3 = sobel_gy * sobel_hy + sobel_iy;
+
+            total += p1 + p2 + p3;
+        }
+    }
+
+    out = total;
+
 }
 
 void naive_filter_gradient_wrapper(void* ctx) {
@@ -133,10 +216,11 @@ void naive_filter_gradient_wrapper(void* ctx) {
     args.out = 0.0f;
     naive_filter_gradient(args.out, args.data, args.width, args.height);
 }
+
 void stu_filter_gradient_wrapper(void* ctx) {
     auto& args = *static_cast<filter_gradient_args*>(ctx);
     args.out = 0.0f;
-    stu_filter_gradient(args.out, args.data, args.width, args.height);
+    stu_filter_gradient(args.out, args.aos_data, args.width, args.height);
 }
 
 bool filter_gradient_check(void* stu_ctx, void* ref_ctx, lab_test_func naive_func) {

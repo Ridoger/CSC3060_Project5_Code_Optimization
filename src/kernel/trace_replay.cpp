@@ -97,9 +97,9 @@ void stu_trace_replay(uint64_t& out,
     constexpr size_t prefetch_distance = 32;
     uint64_t total = 0;
 
-    for (size_t i = 0; i < trace.size(); ++i) {
-        if (i + prefetch_distance < trace.size()) 
-            __builtin_prefetch(&records[(trace[i + prefetch_distance])]);
+    auto n = trace.size();
+    for (size_t i = 0; i < n; ++i) {
+        __builtin_prefetch(&records[trace[i + prefetch_distance]]);
         total = total * order_mix + trace_replay_cost(records[trace[i]]);
     }
 

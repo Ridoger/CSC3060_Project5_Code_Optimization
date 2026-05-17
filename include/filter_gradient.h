@@ -22,26 +22,37 @@ struct data_struct {
     std::vector<float> i;
 };
 
+struct aos_struct {
+    float a;
+    float b;
+    float c;
+    float d;
+    float e;
+    float f;
+    float g;
+    float h;
+    float i;
+};
+
 struct filter_gradient_args {
-    data_struct data; 
+    data_struct data;
     // TODO: You may want to add new params at the end...
 
     std::size_t width;
     std::size_t height;
     float out;
     double epsilon;
+    std::vector<aos_struct> aos_data;
 
     explicit filter_gradient_args(double epsilon_in = 1e-6)
         : width(0), height(0), out(0.0f), epsilon(epsilon_in) {}
 };
 
-// TODO: You may need to add a function to convert data structure (not 
-// included in time measurement), then implement your version in 
-// stu_filter_gradient, whch is called by stu_filter_gradient_wrapper.
+void convert_data_struct(const data_struct& data, std::vector<aos_struct>& aos_vec);
 
 void naive_filter_gradient(float& out, const data_struct& data,
                    std::size_t width, std::size_t height);
-void stu_filter_gradient(float& out, const data_struct& data,
+void stu_filter_gradient(float& out, const std::vector<aos_struct>& data,
                    std::size_t width, std::size_t height);
 
 void naive_filter_gradient_wrapper(void* ctx);

@@ -113,24 +113,13 @@ int main() {
         std::cout << "Black-Scholes options: "
                   << black_args_ref.spot_price.size() << '\n';
 
-        // TODO: Uncomment this block when the student implementation exists.
-        // blackscholes_args black_args_stu;
-        // initialize_blackscholes(black_args_stu, 81920, seed);
-        // run_benchmark({"Black-Scholes",
-        //                stu_BlkSchls_wrapper,
-        //                naive_BlkSchls_wrapper,
-        //                BlkSchls_check,
-        //                &black_args_stu,
-        //                &black_args_ref,
-        //                BASELINE_BLACKSCHOLES,
-        //                NAIVE_SPEEDUP_LOWER_BOUND_BLACKSCHOLES});
-
-        // TODO: Comment this block when the student implementation exists:
+        blackscholes_args black_args_stu;
+        initialize_blackscholes(black_args_stu, 81920, seed);
         run_benchmark({"Black-Scholes",
-                       nullptr,
+                       stu_BlkSchls_wrapper,
                        naive_BlkSchls_wrapper,
                        BlkSchls_check,
-                       nullptr,
+                       &black_args_stu,
                        &black_args_ref,
                        BASELINE_BLACKSCHOLES,
                        NAIVE_SPEEDUP_LOWER_BOUND_BLACKSCHOLES});
@@ -172,24 +161,13 @@ int main() {
         initialize_relu(&relu_args_ref, relu_size, seed);
         std::println("ReLU: vector length={}", relu_size);
 
-        // TODO: Uncomment this block when the student implementation exists.
-        // relu_args relu_args_stu;
-        // initialize_relu(&relu_args_stu, relu_size, seed);
-        // run_benchmark({"ReLU",
-        //                stu_relu_wrapper,
-        //                naive_relu_wrapper,
-        //                relu_check,
-        //                &relu_args_stu,
-        //                &relu_args_ref,
-        //                BASELINE_RELU,
-        //                NAIVE_SPEEDUP_LOWER_BOUND_RELU});
-
-        // TODO: Comment this block when the student implementation exists:
+        relu_args relu_args_stu;
+        initialize_relu(&relu_args_stu, relu_size, seed);
         run_benchmark({"ReLU",
-                       nullptr,
+                       stu_relu_wrapper,
                        naive_relu_wrapper,
                        relu_check,
-                       nullptr,
+                       &relu_args_stu,
                        &relu_args_ref,
                        BASELINE_RELU,
                        NAIVE_SPEEDUP_LOWER_BOUND_RELU});
@@ -201,24 +179,13 @@ int main() {
         initialize_bitwise(&bitwise_args_ref, bitwise_size, seed);
         std::println("Bitwise: vector length={}", bitwise_size);
 
-        // TODO: Uncomment this block when the student implementation exists.
-        // bitwise_args bitwise_args_stu;
-        // initialize_bitwise(&bitwise_args_stu, bitwise_size, seed);
-        // run_benchmark({"Bitwise",
-        //                stu_bitwise_wrapper,
-        //                naive_bitwise_wrapper,
-        //                bitwise_check,
-        //                &bitwise_args_stu,
-        //                &bitwise_args_ref,
-        //                BASELINE_BITWISE,
-        //                NAIVE_SPEEDUP_LOWER_BOUND_BITWISE});
-
-        // TODO: Comment this block when the student implementation exists:
+        bitwise_args bitwise_args_stu;
+        initialize_bitwise(&bitwise_args_stu, bitwise_size, seed);
         run_benchmark({"Bitwise",
-                       nullptr,
+                       stu_bitwise_wrapper,
                        naive_bitwise_wrapper,
                        bitwise_check,
-                       nullptr,
+                       &bitwise_args_stu,
                        &bitwise_args_ref,
                        BASELINE_BITWISE,
                        NAIVE_SPEEDUP_LOWER_BOUND_BITWISE});
@@ -229,24 +196,13 @@ int main() {
         initialize_matmul(matmul_args_ref, 512, seed);
         std::cout << "MatMul: n=" << matmul_args_ref.n << '\n';
 
-        // TODO: Uncomment this block when the student implementation exists.
-        // matmul_args matmul_args_stu;
-        // initialize_matmul(matmul_args_stu, 512, seed);
-        // run_benchmark({"MatMul",
-        //                stu_matmul_wrapper,
-        //                naive_matmul_wrapper,
-        //                matmul_check,
-        //                &matmul_args_stu,
-        //                &matmul_args_ref,
-        //                BASELINE_MATMUL,
-        //                NAIVE_SPEEDUP_LOWER_BOUND_MATMUL});
-
-        // TODO: Comment this block when the student implementation exists:
+        matmul_args matmul_args_stu;
+        initialize_matmul(matmul_args_stu, 512, seed);
         run_benchmark({"MatMul",
-                       nullptr,
+                       stu_matmul_wrapper,
                        naive_matmul_wrapper,
                        matmul_check,
-                       nullptr,
+                       &matmul_args_stu,
                        &matmul_args_ref,
                        BASELINE_MATMUL,
                        NAIVE_SPEEDUP_LOWER_BOUND_MATMUL});
@@ -258,24 +214,13 @@ int main() {
         std::cout << "Trace Replay: records=" << trace_args_ref.records.size()
                   << ", trace_length=" << trace_args_ref.trace.size() << '\n';
 
-        // TODO: Uncomment this block when the student implementation exists.
-        // trace_replay_args trace_args_stu;
-        // initialize_trace_replay(trace_args_stu, 1 << 16, 1 << 20, seed);
-        // run_benchmark({"Trace Replay",
-        //                stu_trace_replay_wrapper,
-        //                naive_trace_replay_wrapper,
-        //                trace_replay_check,
-        //                &trace_args_stu,
-        //                &trace_args_ref,
-        //                BASELINE_TRACE_REPLAY,
-        //                NAIVE_SPEEDUP_LOWER_BOUND_TRACE_REPLAY});
-
-        // TODO: Comment this block when the student implementation exists:
+        trace_replay_args trace_args_stu;
+        initialize_trace_replay(trace_args_stu, 1 << 16, 1 << 20, seed);
         run_benchmark({"Trace Replay",
-                       nullptr,
+                       stu_trace_replay_wrapper,
                        naive_trace_replay_wrapper,
                        trace_replay_check,
-                       nullptr,
+                       &trace_args_stu,
                        &trace_args_ref,
                        BASELINE_TRACE_REPLAY,
                        NAIVE_SPEEDUP_LOWER_BOUND_TRACE_REPLAY});
@@ -292,28 +237,18 @@ int main() {
         std::cout << "Graph: node_count=" << graph_node_count
                   << ", avg_degree=" << graph_avg_degree << '\n';
 
-        // TODO: Uncomment this block when the student implementation exists.
-        // graph_args graph_args_stu;
-        // initialize_graph(&graph_args_stu, graph_node_count, graph_avg_degree, seed);
-        // convert_graph_to_csr(graph_args_stu.graph_csr, graph_args_stu.graph);
-        // run_benchmark({"Graph",
-        //                stu_graph_wrapper,
-        //                naive_graph_wrapper,
-        //                graph_check,
-        //                &graph_args_stu,
-        //                &graph_args_ref,
-        //                BASELINE_GRAPH,
-        //                NAIVE_SPEEDUP_LOWER_BOUND_GRAPH});
-
-        // TODO: Comment this block when the student implementation exists:
+        graph_args graph_args_stu;
+        initialize_graph(&graph_args_stu, graph_node_count, graph_avg_degree, seed);
+        graph_args_stu.adj = convert_graph(graph_args_stu.graph);
         run_benchmark({"Graph",
-                       nullptr,
+                       stu_graph_wrapper,
                        naive_graph_wrapper,
                        graph_check,
-                       nullptr,
+                       &graph_args_stu,
                        &graph_args_ref,
                        BASELINE_GRAPH,
                        NAIVE_SPEEDUP_LOWER_BOUND_GRAPH});
+
     }
 
     {
@@ -387,26 +322,15 @@ int main() {
                                    seed);
         std::cout << "Filter Gradient: " << height << " x " << width << '\n';
 
-        // TODO: Uncomment this block when the student implementation exists.
-        // filter_gradient_args filter_gradient_args_stu;
-        // initialize_filter_gradient(&filter_gradient_args_stu, width, height, seed);
-        // convert_soa_to_aos(filter_gradient_args_stu.aos_data,
-        //                    filter_gradient_args_stu.data);
-        // run_benchmark({"Filter Gradient",
-        //                stu_filter_gradient_wrapper,
-        //                naive_filter_gradient_wrapper,
-        //                filter_gradient_check,
-        //                &filter_gradient_args_stu,
-        //                &filter_gradient_args_ref,
-        //                BASELINE_FILTER_GRADIENT,
-        //                NAIVE_SPEEDUP_LOWER_BOUND_FILTER_GRADIENT});
-
-        // TODO: Comment this block when the student implementation exists:
+        filter_gradient_args filter_gradient_args_stu;
+        initialize_filter_gradient(&filter_gradient_args_stu, width, height, seed);
+        convert_data_struct(filter_gradient_args_stu.data,
+                           filter_gradient_args_stu.aos_data);
         run_benchmark({"Filter Gradient",
-                       nullptr,
+                       stu_filter_gradient_wrapper,
                        naive_filter_gradient_wrapper,
                        filter_gradient_check,
-                       nullptr,
+                       &filter_gradient_args_stu,
                        &filter_gradient_args_ref,
                        BASELINE_FILTER_GRADIENT,
                        NAIVE_SPEEDUP_LOWER_BOUND_FILTER_GRADIENT});

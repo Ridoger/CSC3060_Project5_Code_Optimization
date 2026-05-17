@@ -30,17 +30,17 @@ struct graph_args {
     std::vector<Edge> edge_storage;
     std::uint64_t out;
     double epsilon;
-    // TODO: You may want to add new params at the end...
+
+    std::vector<int> adj;
 
     explicit graph_args(double epsilon_in = 1e-6)
         : graph{0, nullptr}, out{0}, epsilon{epsilon_in} {}
 };
 
+std::vector<int> convert_graph(const Graph& graph);
+
 void naive_graph(std::uint64_t& out, const Graph& graph);
-// TODO: You may need to add a function to convert data structure (not 
-// included in time measurement), then implement your version in 
-// stu_graph, whch is called by stu_graph_wrapper.
-void stu_graph(std::uint64_t& out, const Graph& graph);
+void stu_graph(std::uint64_t& out, const std::vector<int>& adj);
 
 void naive_graph_wrapper(void* ctx);
 void stu_graph_wrapper(void* ctx);

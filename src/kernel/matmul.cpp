@@ -5,6 +5,7 @@
 #include <random>
 #include <stdexcept>
 #include <vector>
+#include <cstring>
 
 void initialize_matmul(matmul_args& args, int n, uint32_t seed) {
     if (n <= 0) {
@@ -51,31 +52,23 @@ void stu_matmul(std::vector<float>& C,
         
     std::fill(C.begin(), C.end(), 0.0f); // reset C
 
+    // TODO: 优化不达标
+
     constexpr int BLOCK = 64;
 
-    // note that
-    // ((A11 A12)  ((B11 B12)       ((A11 B11 + A12 B21)  (A11 B12 + A12 B22)
-    //  (A21 A22))  (B21 B22))  =    (A21 B11 + A22 B21)  (A21 B12 + A22 B22))
-    // and it can be generalized to arbitrary number of the sub blocks,
-    // which can used to tear down the scale of multiplication,
     for (int ii = 0; ii < n; ii += BLOCK) {
-        const int i_end = std::min(ii + BLOCK, n);
     for (int jj = 0; jj < n; jj += BLOCK) {
-        const int j_end = std::min(jj + BLOCK, n);
     for (int kk = 0; kk < n; kk += BLOCK) {
-        const int k_end = std::min(kk + BLOCK, n);
-    // tiled on ii→jj→kk so C tile stays resident in L1 across kk accumulation
-                
-        // cij = Σ aik * bkj
-        // rearranged the order to iterate j first, then k,
-        // to eliminate cache conflict on B
-        for (int i = ii; i < i_end; ++i) {
-        for (int k = kk; k < k_end; ++k) {
-            const float aik = A[i * n + k];
-        for (int j = jj; j < j_end; ++j) {
-            C[i * n + j] += aik * B[k * n + j];
+        
+
+        for (int i = ii; i < std::min(ii + BLOCK, n); ++i) {
+        for (int k = kk; k < std::min(kk + BLOCK, n); ++k) {
+        const float a = A[i * n + k];
+        for (int j = jj; j < std::min(jj + BLOCK, n); ++j) {
+                C[i * n + j] += a * B[k * n + j];
         } } }
-                
+
+
     } } }
 }
 

@@ -62,10 +62,27 @@ void naive_graph(std::uint64_t& out, const Graph& graph) {
     out = checksum;
 }
 
-void stu_graph(std::uint64_t& out, const Graph& graph) {
-    // TODO: You may need to add a function to convert data structure (not
-    // included in time measurement), then implement your version in
-    // stu_graph, whch is called by stu_graph_wrapper.
+void stu_graph(std::uint64_t& out, const std::vector<int>& adj) {
+    std::uint64_t checksum = 0;
+    #pragma GCC unroll 8
+    for (auto u : adj) {
+        checksum += static_cast<std::uint64_t>(u);
+    }
+    out = checksum;
+}
+
+std::vector<int> convert_graph(const Graph& graph) {
+    std::vector<int> adj;
+
+    for (int u = 0; u < graph.n; ++u) {
+        const Edge* e = graph.nodes[u].edges;
+        while (e) {
+            adj.push_back(e->to);
+            e = e->next;
+        }
+    }
+
+    return adj;
 }
 
 void naive_graph_wrapper(void* ctx) {
@@ -75,7 +92,7 @@ void naive_graph_wrapper(void* ctx) {
 
 void stu_graph_wrapper(void* ctx) {
     auto& args = *static_cast<graph_args*>(ctx);
-    stu_graph(args.out, args.graph);
+    stu_graph(args.out, args.adj);
 }
 
 bool graph_check(void* stu_ctx, void* ref_ctx, lab_test_func naive_func) {
